@@ -1,7 +1,7 @@
 {
   "name": "ts_template",
   "version": "1.0.0-alpha.1",
-  "description": "",
+  "description": "API Rest Simulator",
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",

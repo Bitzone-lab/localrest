@@ -15,23 +15,17 @@ export default class Store<T extends DataListExtendsInterface, K> {
     return this.typeID === TypeID.STRING ? IDString() : IDNumber()
   }
 
-  constructor(dataList: Array<T> = [], defaultMode?: K) {
+  constructor(dataList: Array<T>, defaultMode?: K, typeId: TypeID = TypeID.NUMBER) {
+    this.typeID = typeId
     this.init(dataList, defaultMode)
   }
 
   init(dataList: Array<T> = [], defaultMode?: K) {
     this.defaultMode = defaultMode
-    for (const data of dataList) {
-      if (data.id === undefined) continue
-      if (typeof data.id === 'string') {
-        this.typeID === TypeID.STRING
-        break
-      }
-    }
 
     dataList.map((data) => {
-      const Id = this.generateID()
-      const id = data.id || Id
+      const ID = this.generateID()
+      const id = data.id || ID
 
       if (data.id) {
         const dataSystem: SystemData<T, K> = new SystemData(data, defaultMode)

@@ -17,7 +17,7 @@ export default class SystemData<T extends DataListExtendsInterface, K> extends D
     this.value = {
       ...this.value,
       ...body,
-      id: this.value
+      id: this.value.id
     }
     this.updated = true
   }

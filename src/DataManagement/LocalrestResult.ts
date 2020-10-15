@@ -11,7 +11,7 @@ export default class LocalrestResult<T, K> {
   toDelete(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isDeleted) {
+      if (data instanceof SystemData && data.isDeleted()) {
         dataList.push(data.get())
       }
     })
@@ -22,7 +22,7 @@ export default class LocalrestResult<T, K> {
   toUpdate(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isUpdated) {
+      if (data instanceof SystemData && data.isUpdated()) {
         dataList.push(data.get())
       }
     })
@@ -53,7 +53,7 @@ export default class LocalrestResult<T, K> {
   get hasToUpdate(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isUpdated) {
+      if (data instanceof SystemData && data.isUpdated()) {
         has = true
       }
     })
@@ -63,7 +63,7 @@ export default class LocalrestResult<T, K> {
   get hasToDelete(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isDeleted) {
+      if (data instanceof SystemData && data.isDeleted()) {
         has = true
       }
     })

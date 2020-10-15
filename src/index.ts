@@ -1,11 +1,12 @@
 import LocalData from './DataManagement/LocalData'
 import SystemData from './DataManagement/SystemData'
+import TypeID from './enums/TypeID'
 import DataListExtendsInterface from './interfaces/DataListExtendsInterface'
 import Store from './Store'
 
 export default class Localrest<T extends DataListExtendsInterface, K> extends Store<T, K> {
-  constructor(dataList: Array<T> = [], defaultMode?: K) {
-    super(dataList, defaultMode)
+  constructor(dataList: Array<T> = [], defaultMode?: K, typeId: TypeID = TypeID.NUMBER) {
+    super(dataList, defaultMode, typeId)
   }
 
   add(body: T, mode?: K): T {
@@ -21,7 +22,7 @@ export default class Localrest<T extends DataListExtendsInterface, K> extends St
     const data = this.dataMap.get(id)
     if (data === undefined) return null
 
-    if (data instanceof SystemData && data.isDeleted) {
+    if (data instanceof SystemData && data.isDeleted()) {
       return null
     }
 
@@ -31,9 +32,8 @@ export default class Localrest<T extends DataListExtendsInterface, K> extends St
   update(id: number | string, body: Object): boolean {
     const data = this.dataMap.get(id)
     if (data === undefined) return false
-
     if (data instanceof LocalData) {
-      data.update({ ...data.get(), ...body })
+      data.update({ ...data.get(), ...body, id })
     }
 
     if (data instanceof SystemData) {
@@ -43,6 +43,7 @@ export default class Localrest<T extends DataListExtendsInterface, K> extends St
         id
       })
     }
+
     return true
   }
 
@@ -66,7 +67,7 @@ export default class Localrest<T extends DataListExtendsInterface, K> extends St
   list(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data, id) => {
-      if (data instanceof SystemData && !data.isDeleted) {
+      if (data instanceof SystemData && !data.isDeleted()) {
         dataList.push({ ...data.get(), id })
       } else if (data instanceof LocalData) {
         dataList.push({ ...data.get(), id })
@@ -79,7 +80,7 @@ export default class Localrest<T extends DataListExtendsInterface, K> extends St
   map<L>(callbackfn: (data: T, id: string | number, mode?: K) => L): Array<L> {
     const dataList: Array<L> = []
     this.dataMap.forEach((data, id) => {
-      if (data instanceof SystemData && !data.isDeleted) {
+      if (data instanceof SystemData && !data.isDeleted()) {
         dataList.push(callbackfn(data.get(), id, data.mode))
       } else if (data instanceof LocalData) {
         dataList.push(callbackfn(data.get(), id, data.mode))
