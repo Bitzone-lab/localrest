@@ -1,92 +1,119 @@
-import LocalData from './DataManagement/LocalData'
-import SystemData from './DataManagement/SystemData'
-import TypeID from './enums/TypeID'
-import DataListExtendsInterface from './interfaces/DataListExtendsInterface'
-import Store from './Store'
+import Methods from './core/Methods'
+import Result from './core/Result'
+import LocalData from './data_types/LocalData'
+import SystemData from './data_types/SystemData'
+import Data from './items/Data'
 
-export default class Localrest<T extends DataListExtendsInterface, K> extends Store<T, K> {
-  constructor(dataList: Array<T> = [], defaultMode?: K, typeId: TypeID = TypeID.NUMBER) {
-    super(dataList, defaultMode, typeId)
+export default class LocalRest<T, K> extends Methods<T, K> {
+  constructor(initial_list: Array<Data<T, K>> = [], helper?: K) {
+    super()
+    this.init(initial_list, helper)
   }
 
-  add(body: T, mode?: K): T {
-    const ID: number | string = this.generateID()
-    const data = { ...body, id: ID }
+  init(initial_list: Array<Data<T, K>> = [], helper?: K) {
+    this.defaultHelper = helper
+    this.collections.clear()
+    initial_list.map((data) => {
+      const result = data.get()
 
-    const localData: LocalData<T, K> = new LocalData(data, mode || this.defaultMode)
-    this.dataMap.set(ID, localData)
-    return data
+      if (result.id) {
+        const systemData: SystemData<T, K> = new SystemData(
+          result.data,
+          result.helper || this.defaultHelper
+        )
+        this.collections.set(result.id, systemData)
+      } else {
+        const localData: LocalData<T, K> = new LocalData(
+          result.data,
+          result.helper || this.defaultHelper
+        )
+        this.collections.set(this.generator.getID(), localData)
+      }
+    })
   }
 
-  get(id: number | string): T | null {
-    const data = this.dataMap.get(id)
-    if (data === undefined) return null
-
-    if (data instanceof SystemData && data.isDeleted()) {
-      return null
+  reset(to: 'validations' | 'list' | 'helper' | 'all' = 'all'): boolean {
+    switch (to) {
+      case 'validations':
+        this.collections.forEach(function (data) {
+          data.restartValidation()
+        })
+        return true
+      case 'helper':
+        this.collections.forEach((data) => {
+          data.helper_value = this.defaultHelper
+        })
+        return true
+      case 'list':
+        this.collections.clear()
+        return true
+      case 'all':
+        this.collections.forEach(function (data) {
+          data.restartValidation()
+        })
+        this.collections.clear()
+        this.collections.forEach((data) => {
+          data.helper_value = this.defaultHelper
+        })
+        return true
+      default:
+        return false
     }
-
-    return { ...data.get(), id }
   }
 
-  update(id: number | string, body: Object): boolean {
-    const data = this.dataMap.get(id)
+  valid<L extends keyof T>(id: number, fieldname: L, message: string): boolean {
+    const data: LocalData<T, K> | SystemData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
-    if (data instanceof LocalData) {
-      data.update({ ...data.get(), ...body, id })
-    }
 
-    if (data instanceof SystemData) {
-      data.willBeUpdated({
-        ...data.get(),
-        ...body,
-        id
-      })
-    }
-
+    data.valid(fieldname, message)
     return true
   }
 
-  delete(id: number | string): boolean {
-    const data = this.dataMap.get(id)
-    if (data === undefined) return false
+  validation<L extends keyof T>(id: number, valids: Partial<Record<L, string>>): boolean {
+    const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
 
-    if (data instanceof SystemData) {
-      data.willBeDeleted()
+    if (data !== undefined) {
+      for (const key in valids) {
+        const message: string = (valids[key] as string) || ''
+        data.valid(key, message)
+      }
       return true
     }
-
-    return this.dataMap.delete(id)
+    return false
   }
 
-  set(id: number | string, body: T, mode?: K) {
-    const systemData: SystemData<T, K> = new SystemData({ ...body }, mode || this.defaultMode)
-    this.dataMap.set(id, systemData)
-  }
-
-  list(): Array<T> {
-    const dataList: Array<T> = []
-    this.dataMap.forEach((data, id) => {
-      if (data instanceof SystemData && !data.isDeleted()) {
-        dataList.push({ ...data.get(), id })
-      } else if (data instanceof LocalData) {
-        dataList.push({ ...data.get(), id })
+  hasChange<L extends keyof T>(id?: number, fieldname?: L): boolean {
+    let changes = false
+    if (id) {
+      const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
+      if (data !== undefined) {
+        changes = data.hasChange(fieldname)
       }
-    })
-
-    return dataList
+    } else {
+      this.collections.forEach(function (data) {
+        if (!changes) {
+          changes = data.hasChange()
+        }
+      })
+    }
+    return changes
   }
 
-  map<L>(callbackfn: (data: T, id: string | number, mode?: K) => L): Array<L> {
-    const dataList: Array<L> = []
-    this.dataMap.forEach((data, id) => {
-      if (data instanceof SystemData && !data.isDeleted()) {
-        dataList.push(callbackfn(data.get(), id, data.mode))
-      } else if (data instanceof LocalData) {
-        dataList.push(callbackfn(data.get(), id, data.mode))
-      }
-    })
+  whoChange(id: number): Object {
+    const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
+    const fields: { [key: string]: any } = {}
+    if (data === undefined) return fields
 
-    return dataList
+    for (const fieldname in data.get()) {
+      if (data.hasChange(fieldname)) {
+        fields[fieldname] = data.get()[fieldname]
+      }
+    }
+
+    return fields
+  }
+
+  result(): Result<T, K> {
+    return new Result(this.collections)
   }
 }

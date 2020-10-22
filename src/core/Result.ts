@@ -1,10 +1,10 @@
-import LocalData from './LocalData'
-import SystemData from './SystemData'
+import LocalData from '../data_types/LocalData'
+import SystemData from '../data_types/SystemData'
 
-export default class LocalrestResult<T, K> {
-  protected dataMap: Map<string | number, SystemData<T, K> | LocalData<T, K>> = new Map()
+export default class Result<T, K> {
+  protected dataMap: Map<number, SystemData<T, K> | LocalData<T, K>> = new Map()
 
-  constructor(data: Map<string | number, LocalData<T, K> | SystemData<T, K>>) {
+  constructor(data: Map<number, LocalData<T, K> | SystemData<T, K>>) {
     this.dataMap = data
   }
 
