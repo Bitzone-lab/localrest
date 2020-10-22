@@ -4,22 +4,18 @@ interface Fields<T> {
   [key: string]: T
 }
 
-/**
- * @template T Data
- * @template K Helper
- */
 export default class DataBase<T, K> {
   protected value: T
   helper_value?: K
   validations: Partial<Record<keyof T, string>> = {}
-  fields: Fields<Field<T[Extract<keyof T, string>]>> = {}
+  fields: Fields<Field<any>> = {}
 
-  constructor(value: T, helper?: K) {
-    this.value = value
+  constructor(values: T, helper?: K) {
+    this.value = values
     this.helper_value = helper
-    for (const key in value) {
+    for (const key in values) {
       this.validations[key] = ''
-      const field: Field<T[Extract<keyof T, string>]> = new Field(value[key])
+      const field: Field<T[Extract<keyof T, string>]> = new Field(values[key])
       this.fields[key] = field
     }
   }

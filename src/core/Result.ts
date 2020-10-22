@@ -69,4 +69,14 @@ export default class Result<T, K> {
     })
     return has
   }
+
+  get hasToAdd(): boolean {
+    let has = false
+    this.dataMap.forEach((data) => {
+      if (data instanceof LocalData) {
+        has = true
+      }
+    })
+    return has
+  }
 }

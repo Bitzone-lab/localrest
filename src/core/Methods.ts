@@ -6,21 +6,37 @@ import Store from './Store'
 export default class Methods<T, K> extends Store<T, K> {
   protected generator = generator()
 
-  set(id: number, body: T, helper?: K): boolean {
+  set(id: number, body: T, helper?: K): T & { id: number } {
     const systemData: SystemData<T, K> = new SystemData(body, helper || this.defaultHelper)
     this.collections.set(id, systemData)
-    return true
+    return {
+      ...systemData.get(),
+      id
+    }
   }
 
-  add(body: T): T {
+  get(id: number): (T & { id: number }) | null {
+    const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
+    if (data === undefined) return null
+
+    return {
+      ...data.get(),
+      id
+    }
+  }
+
+  add(body: T): T & { id: number } {
     const id: number = this.generator.getID()
 
     const localData: LocalData<T, K> = new LocalData(body, this.defaultHelper)
     this.collections.set(id, localData)
-    return localData.get()
+    return {
+      ...localData.get(),
+      id
+    }
   }
 
-  update(id: number, body: any): boolean {
+  update(id: number, body: Partial<Record<keyof T, any>>): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
@@ -47,23 +63,41 @@ export default class Methods<T, K> extends Store<T, K> {
     return true
   }
 
-  list(): Array<T> {
-    const list: Array<T> = []
+  list(): Array<T & { id: number }> {
+    const list: Array<T & { id: number }> = []
 
-    this.collections.forEach(function (data) {
+    this.collections.forEach(function (data, id) {
       if (data instanceof SystemData && !data.isDeleted()) {
-        list.push(data.get())
+        list.push({ ...data.get(), id })
+      } else if (data instanceof LocalData) {
+        list.push({ ...data.get(), id })
       }
     })
 
     return list
   }
 
-  earch<L>(callbackfn: (data: T, id: number, helper?: K) => L): Array<L> {
+  get size(): number {
+    return this.list().length
+  }
+
+  /**
+   * Maping list
+   * @param callbackfn iterator
+   */
+  each<L>(
+    callbackfn: (
+      data: T & { id: number },
+      validation: Partial<Record<keyof T, string>>,
+      helper?: K
+    ) => L
+  ): Array<L> {
     const list: Array<L> = []
     this.collections.forEach(function (data, id) {
       if (data instanceof SystemData && !data.isDeleted()) {
-        list.push(callbackfn(data.get(), id, data.helper_value))
+        list.push(callbackfn({ ...data.get(), id }, { ...data.validations }, data.helper_value))
+      } else if (data instanceof LocalData) {
+        list.push(callbackfn({ ...data.get(), id }, { ...data.validations }, data.helper_value))
       }
     })
 

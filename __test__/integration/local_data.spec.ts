@@ -1,5 +1,4 @@
 import LocalRest from '../../src'
-
 interface Data {
   id?: number
   name: string
@@ -7,23 +6,28 @@ interface Data {
 }
 
 const list = [
-  { id: 1, name: 'Juan', age: 15 },
-  { id: 5, name: 'Mario', age: 18 }
+  {
+    name: 'Juan',
+    age: 15
+  },
+  {
+    name: 'Mario',
+    age: 18
+  }
 ]
 
-describe('System Data', function () {
+describe('Local Data', () => {
   it('set list data by instance and expect list method', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
-
     expect(localrest.list()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 1,
+          id: expect.any(Number),
           name: 'Juan',
           age: 15
         }),
         expect.objectContaining({
-          id: 5,
+          id: expect.any(Number),
           name: 'Mario',
           age: 18
         })
@@ -33,52 +37,42 @@ describe('System Data', function () {
     expect(localrest.size).toBe(2)
   })
 
-  it('set data', function () {
-    const localrest: LocalRest<Data> = new LocalRest()
-    const result = localrest.set(10, {
-      name: 'Ana',
-      age: 74
-    })
-
-    expect(result).toMatchObject({
-      id: 10,
-      name: 'Ana',
-      age: 74
-    })
-
-    expect(localrest.size).toBe(1)
-  })
-
-  it('create data with system data', function () {
-    const localrest: LocalRest<Data, null> = new LocalRest(list)
-    const result = localrest.add({
-      name: 'Mili',
-      age: 41
-    })
+  it('create data', function () {
+    const localrest: LocalRest<Data, null> = new LocalRest()
+    const result = localrest.add(list[0])
 
     expect(result).toMatchObject({
       id: expect.any(Number),
-      name: 'Mili',
-      age: 41
+      name: 'Juan',
+      age: 15
     })
 
-    expect(localrest.size).toBe(3)
+    const result2 = localrest.add(list[1])
+
+    expect(result2).toMatchObject({
+      id: expect.any(Number),
+      name: 'Mario',
+      age: 18
+    })
+
+    expect(localrest.size).toBe(2)
   })
 
   it('update data', function () {
-    const localrest: LocalRest<Data> = new LocalRest(list)
+    const localrest: LocalRest<Data> = new LocalRest()
+    const data = localrest.add(list[0])
 
-    const result = localrest.update(list[0].id, {
-      name: 'Luis',
-      age: 21
+    const result = localrest.update(data.id, {
+      name: 'Ana',
+      age: 25
     })
 
     expect(result).toBeTruthy()
 
-    expect(localrest.get(list[0].id)).toMatchObject({
-      id: list[0].id,
-      name: 'Luis',
-      age: 21
+    expect(localrest.get(data.id)).toMatchObject({
+      id: expect.any(Number),
+      name: 'Ana',
+      age: 25
     })
   })
 
@@ -102,6 +96,6 @@ describe('System Data', function () {
       return data.id
     })
 
-    expect(ids).toEqual(expect.arrayContaining([1, 5]))
+    expect(ids).toEqual(expect.arrayContaining([expect.any(Number), expect.any(Number)]))
   })
 })

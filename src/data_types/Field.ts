@@ -9,9 +9,9 @@ export default class Field<T> {
 
   hasChange(): boolean {
     if (this.backup === JSON.stringify(this._value)) {
-      return true
-    } else {
       return false
+    } else {
+      return true
     }
   }
 

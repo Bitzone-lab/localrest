@@ -5,14 +5,13 @@ export default class LocalData<T, K> extends DataBase<T, K> {
     super(body, helper)
   }
 
-  update(body: any) {
-    if (typeof body === 'object') {
-      this.value = {
-        ...this.value,
-        ...body
-      }
-    } else {
-      this.value = body
+  update(body: Partial<Record<keyof T, any>>) {
+    this.value = {
+      ...this.get(),
+      ...body
+    }
+    for (const key in body) {
+      this.fields[key].update(body[key])
     }
   }
 }

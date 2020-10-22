@@ -12,14 +12,14 @@ export default class SystemData<T, K> extends DataBase<T, K> {
     this.deleted = true
   }
 
-  willBeUpdated(body: Object) {
-    if (typeof body === 'object') {
-      this.value = {
-        ...this.get(),
-        ...body
-      }
-    } else {
-      this.value = body
+  willBeUpdated(body: Partial<Record<keyof T, any>>) {
+    this.value = {
+      ...this.get(),
+      ...body
+    }
+
+    for (const key in body) {
+      this.fields[key].update(body[key])
     }
 
     this.updated = true

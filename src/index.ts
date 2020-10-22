@@ -2,31 +2,22 @@ import Methods from './core/Methods'
 import Result from './core/Result'
 import LocalData from './data_types/LocalData'
 import SystemData from './data_types/SystemData'
-import Data from './items/Data'
 
-export default class LocalRest<T, K> extends Methods<T, K> {
-  constructor(initial_list: Array<Data<T, K>> = [], helper?: K) {
+export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
+  constructor(initial_list: Array<T & { id?: number }> = [], helper?: K) {
     super()
     this.init(initial_list, helper)
   }
 
-  init(initial_list: Array<Data<T, K>> = [], helper?: K) {
+  init(initial_list: Array<T & { id?: number }> = [], helper?: K) {
     this.defaultHelper = helper
     this.collections.clear()
     initial_list.map((data) => {
-      const result = data.get()
-
-      if (result.id) {
-        const systemData: SystemData<T, K> = new SystemData(
-          result.data,
-          result.helper || this.defaultHelper
-        )
-        this.collections.set(result.id, systemData)
+      if (data.id) {
+        const systemData: SystemData<T, K> = new SystemData(data, this.defaultHelper)
+        this.collections.set(data.id, systemData)
       } else {
-        const localData: LocalData<T, K> = new LocalData(
-          result.data,
-          result.helper || this.defaultHelper
-        )
+        const localData: LocalData<T, K> = new LocalData(data, this.defaultHelper)
         this.collections.set(this.generator.getID(), localData)
       }
     })
@@ -63,6 +54,7 @@ export default class LocalRest<T, K> extends Methods<T, K> {
 
   valid<L extends keyof T>(id: number, fieldname: L, message: string): boolean {
     const data: LocalData<T, K> | SystemData<T, K> | undefined = this.collections.get(id)
+
     if (data === undefined) return false
 
     data.valid(fieldname, message)
@@ -111,6 +103,19 @@ export default class LocalRest<T, K> extends Methods<T, K> {
     }
 
     return fields
+  }
+
+  helper(id: number, helper?: K): K | null {
+    const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
+    if (data === undefined) return null
+
+    if (helper !== undefined) {
+      return data.helper(helper) || null
+    }
+
+    const helper_value = data.helper()
+
+    return helper_value === undefined ? null : helper_value
   }
 
   result(): Result<T, K> {
