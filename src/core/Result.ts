@@ -8,6 +8,10 @@ export default class Result<T, K> {
     this.dataMap = data
   }
 
+  /**
+   * Returns a list of data that was deleted. Only system data appears
+   * @returns List of data deleted
+   */
   toDelete(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
@@ -19,6 +23,10 @@ export default class Result<T, K> {
     return dataList
   }
 
+  /**
+   * Returns a list of data that was updated. Only system data appears
+   * @returns List of data updated
+   */
   toUpdate(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
@@ -30,6 +38,10 @@ export default class Result<T, K> {
     return dataList
   }
 
+  /**
+   * Returns a list of data that was added
+   * @returns List of data added
+   */
   toAdd(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
@@ -41,6 +53,10 @@ export default class Result<T, K> {
     return dataList
   }
 
+  /**
+   * Returns all updated, deleted, added and initialized data
+   * @returns All list of data
+   */
   all(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
@@ -50,6 +66,9 @@ export default class Result<T, K> {
     return dataList
   }
 
+  /**
+   * Check for updated data. Only system data appears
+   */
   get hasToUpdate(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
@@ -60,6 +79,9 @@ export default class Result<T, K> {
     return has
   }
 
+  /**
+   * Check for deleted data. Only system data appears
+   */
   get hasToDelete(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
@@ -70,6 +92,9 @@ export default class Result<T, K> {
     return has
   }
 
+  /**
+   * Check for added data.
+   */
   get hasToAdd(): boolean {
     let has = false
     this.dataMap.forEach((data) => {

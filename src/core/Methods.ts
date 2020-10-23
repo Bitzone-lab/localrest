@@ -6,6 +6,13 @@ import Store from './Store'
 export default class Methods<T, K> extends Store<T, K> {
   protected generator = generator()
 
+  /**
+   * Add a new existing data from a database
+   * @param id data system id
+   * @param body data body
+   * @param helper helper for only this data (Optional)
+   * @returns returns the same data
+   */
   set(id: number, body: T, helper?: K): T & { id: number } {
     const systemData: SystemData<T, K> = new SystemData(body, helper || this.defaultHelper)
     this.collections.set(id, systemData)
@@ -15,9 +22,15 @@ export default class Methods<T, K> extends Store<T, K> {
     }
   }
 
+  /**
+   * Returns a data for its id
+   * @param id data id
+   * @returns data object. In case it does not exist, it returns null
+   */
   get(id: number): (T & { id: number }) | null {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return null
+    if (data instanceof SystemData && data.isDeleted()) return null
 
     return {
       ...data.get(),
@@ -25,6 +38,11 @@ export default class Methods<T, K> extends Store<T, K> {
     }
   }
 
+  /**
+   * Create a new data and generate an id
+   * @param body new data body
+   * @returns Returns the data with its respective generated id
+   */
   add(body: T): T & { id: number } {
     const id: number = this.generator.getID()
 
@@ -36,12 +54,19 @@ export default class Methods<T, K> extends Store<T, K> {
     }
   }
 
+  /**
+   * Update specific fields of a data by its id
+   * @param id data id
+   * @param body field for update
+   */
   update(id: number, body: Partial<Record<keyof T, any>>): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
-    if (data instanceof SystemData) {
+    if (data instanceof SystemData && !data.isDeleted()) {
       data.willBeUpdated(body)
+    } else if (data instanceof SystemData && data.isDeleted()) {
+      return false
     }
 
     if (data instanceof LocalData) {
@@ -51,18 +76,29 @@ export default class Methods<T, K> extends Store<T, K> {
     return true
   }
 
+  /**
+   * Delete a data from the list
+   * @param id data id
+   * @returns If it does not find the data, it returns false
+   */
   delete(id: number): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
-    if (data instanceof SystemData) {
+    if (data instanceof SystemData && !data.isDeleted()) {
       data.willBeDeleted()
+    } else if (data instanceof SystemData && data.isDeleted()) {
+      return false
     } else {
       this.collections.delete(id)
     }
     return true
   }
 
+  /**
+   * Returns the current data list with its respective id
+   * @returns data list
+   */
   list(): Array<T & { id: number }> {
     const list: Array<T & { id: number }> = []
 
@@ -77,13 +113,21 @@ export default class Methods<T, K> extends Store<T, K> {
     return list
   }
 
+  /**
+   * Count the listing data
+   */
   get size(): number {
     return this.list().length
   }
 
   /**
-   * Maping list
-   * @param callbackfn iterator
+   * Data mapping, where you also obtain the validations and the helper of each data.
+   * @param callbackfn A function that accepts up to three arguments. Data, validations and helper
+   * @returns Calls a defined callback function on each element of an array, and returns an array that contains the results.
+   * @example
+   * localrest.each(function(data, valid, helper) {
+   *  return data
+   * })
    */
   each<L>(
     callbackfn: (

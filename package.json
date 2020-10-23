@@ -1,19 +1,27 @@
 {
   "name": "localrest",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "API Rest Simulator",
   "main": "lib/index.js",
   "types": "./types/index.d.ts",
+  "bugs": "https://github.com/Bitzone-lab/localrest/issues",
+  "repository": "https://github.com/Bitzone-lab/localrest",
+  "homepage": "https://github.com/Bitzone-lab",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
     "tsc": "tsc",
     "lint": "eslint . --ext .ts",
-    "types": "tsc --d --declarationDir ./types"
+    "types": "tsc --d --declarationDir ./types",
+    "publish:lib": "npm run lint && npm run test && npm run types && npm run tsc && npm publish"
   },
+  "npmName": "localrest",
   "keywords": [
     "typescript",
-    "javascript"
+    "javascript",
+    "api",
+    "collections",
+    "list"
   ],
   "author": "ertrii <ertriilive@gmail.com> (https://github.com/ertrii)",
   "license": "MIT",
