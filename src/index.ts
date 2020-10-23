@@ -23,7 +23,7 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
     })
   }
 
-  reset(to: 'validations' | 'list' | 'helper' | 'all' = 'all'): boolean {
+  reset(to: 'validations' | 'list' | 'helper' | 'all' | number = 'all'): boolean {
     switch (to) {
       case 'validations':
         this.collections.forEach(function (data) {
@@ -48,6 +48,12 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
         })
         return true
       default:
+        if (Number.isInteger(to)) {
+          const data: LocalData<T, K> | SystemData<T, K> | undefined = this.collections.get(to)
+          if (data === undefined) return false
+          data.reset()
+          return true
+        }
         return false
     }
   }

@@ -343,7 +343,22 @@ There are several restore modes
 * list
 * helper
 * all
+* id
 
 ```js
 localrest.reset('helper')
+```
+
+```js
+const list = [
+  { id: 1, name: 'Juan', age: 4 }
+]
+
+const localrest = new LocalRest(list)
+localrest.update(1, {
+  age: 7
+})
+// { id: 1, name: 'Juan', age: 7 }
+localrest.reset(id)
+// { id: 1, name: 'Juan', age: 4 }
 ```

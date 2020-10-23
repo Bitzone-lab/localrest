@@ -22,4 +22,8 @@ export default class Field<T> {
   get value(): T {
     return this._value
   }
+
+  reset() {
+    this._value = JSON.parse(this.backup)
+  }
 }

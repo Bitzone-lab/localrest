@@ -57,4 +57,10 @@ export default class DataBase<T, K> {
     }
     return changes
   }
+
+  reset() {
+    for (const key in this.fields) {
+      this.fields[key].reset()
+    }
+  }
 }
