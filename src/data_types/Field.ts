@@ -26,4 +26,8 @@ export default class Field<T> {
   reset() {
     this._value = JSON.parse(this.backup)
   }
+
+  setBackup(value: any) {
+    this.backup = JSON.stringify(value)
+  }
 }

@@ -8,7 +8,7 @@ import SystemData from './data_types/SystemData'
  * @template T listing data
  * @template K helper, It is an extra information that you want to assign to each data in the list
  */
-export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
+export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> {
   /**
    * Initialize a list data list
    * @param initial_list List of data with which you want to start (Optional)

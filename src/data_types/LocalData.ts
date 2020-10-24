@@ -1,4 +1,5 @@
 import DataBase from './DataBase'
+import Field from './Field'
 
 export default class LocalData<T, K> extends DataBase<T, K> {
   constructor(body: T, helper?: K) {
@@ -11,6 +12,11 @@ export default class LocalData<T, K> extends DataBase<T, K> {
       ...body
     }
     for (const key in body) {
+      if (this.fields[key] === undefined) {
+        const field = new Field(body[key])
+        field.setBackup(undefined)
+        this.fields[key] = field
+      }
       this.fields[key].update(body[key])
     }
   }

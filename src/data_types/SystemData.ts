@@ -1,4 +1,5 @@
 import DataBase from './DataBase'
+import Field from './Field'
 
 export default class SystemData<T, K> extends DataBase<T, K> {
   private deleted: boolean = false
@@ -19,7 +20,13 @@ export default class SystemData<T, K> extends DataBase<T, K> {
     }
 
     for (const key in body) {
-      this.fields[key].update(body[key])
+      if (this.fields[key] === undefined) {
+        const field = new Field(body[key])
+        field.setBackup(undefined)
+        this.fields[key] = field
+      } else {
+        this.fields[key].update(body[key])
+      }
     }
 
     this.updated = true

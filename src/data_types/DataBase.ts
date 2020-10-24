@@ -58,6 +58,7 @@ export default class DataBase<T, K> {
         changes = this.fields[key].hasChange()
       }
     } else {
+      if (this.fields[fieldname as string] === undefined) return false
       changes = this.fields[fieldname as string].hasChange()
     }
     return changes
