@@ -14,7 +14,7 @@ export default class DataBase<T, K> {
      * @param helper Helper
      */
     helper(helper?: K): K | undefined;
-    valid<L extends keyof T>(field: L, message: string): void;
+    valid<L extends keyof T>(field: L, message?: string): string | null;
     restartValidation(): void;
     hasChange<L extends keyof T>(fieldname?: L): boolean;
     reset(): void;

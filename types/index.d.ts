@@ -5,7 +5,7 @@ import Result from './core/Result';
  * @template T listing data
  * @template K helper, It is an extra information that you want to assign to each data in the list
  */
-export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
+export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> {
     /**
      * Initialize a list data list
      * @param initial_list List of data with which you want to start (Optional)
@@ -48,24 +48,24 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
      * Enter a validation message for a specific field of data
      * @param id data id
      * @param fieldname fieldname of data
-     * @param message A message you want to add
-     * @returns In case it does not find the data, it returns false
+     * @param message A message you want to add (Optional)
+     * @returns In case it does not find the data, it returns null
      * @example
      * localrest.valid(id, 'fieldname', 'My message')
      */
-    valid<L extends keyof T>(id: number, fieldname: L, message: string): boolean;
+    valid<L extends keyof T>(id: number, fieldname: L, message?: string): string | null;
     /**
      * Enter validation message for multiple fields
      * @param id data id
      * @param valids list of data fields with their respective validation message
-     * @returns In case it does not find the data, it returns false
+     * @returns In case it does not find the data, it returns empty object
      * @example
      * localrest.validation(id, {
      *  name: 'Name is required',
      *  age: 'The age its not number'
      * })
      */
-    validation<L extends keyof T>(id: number, valids: Partial<Record<L, string>>): boolean;
+    validation<L extends keyof T>(id: number, valids?: Partial<Record<L, string>>): Partial<Record<keyof T, string>>;
     /**
      * It helps to check if there are updates in the entire list, a data or only a field of a specific data
      * @param id data id (Optional)
@@ -80,7 +80,7 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
      * @param id data id
      * @returns fields object that had an update
      */
-    whoChange(id: number): Object;
+    whoChange(id: number): Partial<Record<keyof T, any>>;
     /**
      * It helps to update the helper and also returns your current helper. The second parameter is optional if you only want to get the helper
      * @param id data id

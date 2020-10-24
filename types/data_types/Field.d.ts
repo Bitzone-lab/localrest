@@ -6,4 +6,5 @@ export default class Field<T> {
     update(value: T): void;
     get value(): T;
     reset(): void;
+    setBackup(value: any): void;
 }
