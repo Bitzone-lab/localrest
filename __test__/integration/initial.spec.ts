@@ -44,6 +44,11 @@ const list3 = [
   }
 ]
 
+enum MyHelper {
+  MODE1,
+  MODE2
+}
+
 describe('initial', function () {
   it('inits', function () {
     const localrest: LocalRest<Data> = new LocalRest()
@@ -74,5 +79,17 @@ describe('initial', function () {
 
     expect(localrest.result().hasToAdd).toBeFalsy()
     expect(localrest.size).toBe(2)
+  })
+
+  it('init helper', function () {
+    const localrest: LocalRest<Data, MyHelper> = new LocalRest(list3, MyHelper.MODE1)
+
+    localrest.init(list1, MyHelper.MODE2)
+
+    const helpers = localrest.each(function (data, valid, helper) {
+      return helper
+    })
+
+    expect(helpers).toEqual(expect.arrayContaining([MyHelper.MODE2, MyHelper.MODE2]))
   })
 })

@@ -15,10 +15,10 @@ describe('Validations', function () {
   it('set valid', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     const result = localrest.valid(1, 'name', 'required name')
-    expect(result).toBeTruthy()
+    expect(result).toBe('required name')
 
     const result2 = localrest.valid(2, 'name', 'required name')
-    expect(result2).toBeFalsy()
+    expect(result2).toBeNull()
 
     const validation = localrest.each(function (data, validation) {
       return validation
@@ -45,13 +45,18 @@ describe('Validations', function () {
       age: 'its not number'
     })
 
-    expect(result).toBeTruthy()
+    expect(result).toMatchObject({
+      name: 'required name',
+      age: 'its not number'
+    })
 
     const result2 = localrest.validation(7, {
       name: 'required name'
     })
 
-    expect(result2).toBeFalsy()
+    expect(typeof result2).toBe('object')
+    expect(result2).not.toHaveProperty('name')
+    expect(result2).not.toHaveProperty('age')
 
     const validation = localrest.each(function (data, validation) {
       return validation
@@ -69,6 +74,26 @@ describe('Validations', function () {
         })
       ])
     )
+  })
+
+  it('get validations', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.validation(1, {
+      name: 'required name',
+      age: 'its not number'
+    })
+
+    expect(localrest.valid(1, 'name')).toBe('required name')
+    expect(localrest.valid(1, 'age')).toBe('its not number')
+    expect(localrest.valid(2, 'name')).toBeNull()
+    expect(localrest.valid(2, 'age')).toBeNull()
+    expect(localrest.validation(1)).toMatchObject({
+      name: 'required name',
+      age: 'its not number'
+    })
+    const validation = localrest.validation(2)
+    expect(validation).not.toHaveProperty('name')
+    expect(validation).not.toHaveProperty('age')
   })
 
   it('clear validations', function () {

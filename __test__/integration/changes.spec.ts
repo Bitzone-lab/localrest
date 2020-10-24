@@ -67,4 +67,15 @@ describe('Changes', function () {
     const result2 = localrest.hasChange()
     expect(result2).toBeFalsy()
   })
+
+  it('who change', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.update(1, { name: 'Luis' })
+    const who = localrest.whoChange(1)
+    expect(who).toHaveProperty('name')
+    expect(who).not.toHaveProperty('age')
+    expect(who).toMatchObject({
+      name: 'Luis'
+    })
+  })
 })

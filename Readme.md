@@ -63,7 +63,7 @@ localRest.list()
 ### Each Data
 
 ```js
-localRest.map((data) => (
+localRest.each((data) => (
   <div key={data.id} >
     <p>Name: {data.name}</p>
   <div>
@@ -221,7 +221,7 @@ const localrest = new LocalRest([
   { id: 1, name: 'Juan', age: 4 }
 ])
 let id = 1
-localrest.valid(id, 'name', 'Name is required')
+localrest.valid(id, 'name', 'Name is required') // 'Name is required'
 
 const valids = localrest.each(function(data, valid){
   return valid
@@ -234,6 +234,8 @@ const valids = localrest.each(function(data, valid){
 >  { name: "Name is required", age: ''  }
 > ]
 > ```
+
+The third parameter is optional if you just want to get the message.
 
 **Validation**
 
@@ -258,6 +260,8 @@ const valids = localrest.each(function(data, valid){
 >  { name: "Name is required", age: 'Its not number'  }
 > ]
 > ```
+
+The second parameter is optional if you only want to obtain the data validations
 
 ## Helper
 
@@ -362,3 +366,37 @@ localrest.update(1, {
 localrest.reset(id)
 // { id: 1, name: 'Juan', age: 4 }
 ```
+
+## Use JSDoc
+
+```js
+/**
+ * @typedef {object} Data
+ * @property {string} name
+ * @property {string} lastname
+ * @property {number} age
+*/
+
+const list = [
+  { name: 'Juan', lastname: 'Mendez', age: 4 }
+]
+
+/**
+ * @enum {string}
+*/
+const MyMode = {
+  MODE1: 'MODE1',
+  MODE2: 'MODE2'
+}
+
+/**
+ * @type {LocalRest<Data, MyMode>}
+*/
+const localRest = new LocalRest()
+
+localRest.init(list, MyMode.MODE1)
+```
+
+The helper its optional
+
+Read more about JSDoc [here](https://jsdoc.app/about-getting-started.html)

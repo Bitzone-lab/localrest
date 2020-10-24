@@ -35,8 +35,13 @@ export default class DataBase<T, K> {
     return this.helper_value
   }
 
-  valid<L extends keyof T>(field: L, message: string) {
-    this.validations[field] = message
+  valid<L extends keyof T>(field: L, message?: string): string | null {
+    if (message) {
+      this.validations[field] = message
+      return message
+    } else {
+      return (this.validations[field] as string) || null
+    }
   }
 
   restartValidation() {

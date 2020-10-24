@@ -100,45 +100,54 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
    * Enter a validation message for a specific field of data
    * @param id data id
    * @param fieldname fieldname of data
-   * @param message A message you want to add
-   * @returns In case it does not find the data, it returns false
+   * @param message A message you want to add (Optional)
+   * @returns In case it does not find the data, it returns null
    * @example
    * localrest.valid(id, 'fieldname', 'My message')
    */
-  valid<L extends keyof T>(id: number, fieldname: L, message: string): boolean {
+  valid<L extends keyof T>(id: number, fieldname: L, message?: string): string | null {
     const data: LocalData<T, K> | SystemData<T, K> | undefined = this.collections.get(id)
 
-    if (data instanceof SystemData && data.isDeleted()) return false
+    if (data instanceof SystemData && data.isDeleted()) return null
 
-    if (data === undefined) return false
+    if (data === undefined) return null
 
-    data.valid(fieldname, message)
-    return true
+    if (message) {
+      return data.valid(fieldname, message)
+    } else {
+      return data.valid(fieldname)
+    }
   }
 
   /**
    * Enter validation message for multiple fields
    * @param id data id
    * @param valids list of data fields with their respective validation message
-   * @returns In case it does not find the data, it returns false
+   * @returns In case it does not find the data, it returns empty object
    * @example
    * localrest.validation(id, {
    *  name: 'Name is required',
    *  age: 'The age its not number'
    * })
    */
-  validation<L extends keyof T>(id: number, valids: Partial<Record<L, string>>): boolean {
+  validation<L extends keyof T>(
+    id: number,
+    valids?: Partial<Record<L, string>>
+  ): Partial<Record<keyof T, string>> {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
-    if (data instanceof SystemData && data.isDeleted()) return false
+    if (data instanceof SystemData && data.isDeleted()) return {}
 
-    if (data !== undefined) {
+    if (data !== undefined && valids !== undefined) {
       for (const key in valids) {
         const message: string = (valids[key] as string) || ''
         data.valid(key, message)
       }
-      return true
+      return { ...data.validations }
+    } else if (data !== undefined) {
+      return { ...data.validations }
     }
-    return false
+
+    return {}
   }
 
   /**
@@ -174,9 +183,9 @@ export default class LocalRest<T = Object, K = ''> extends Methods<T, K> {
    * @param id data id
    * @returns fields object that had an update
    */
-  whoChange(id: number): Object {
+  whoChange(id: number): Partial<Record<keyof T, any>> {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
-    const fields: { [key: string]: any } = {}
+    const fields: Partial<Record<keyof T, any>> = {}
     if (data instanceof SystemData && data.isDeleted()) return fields
     if (data === undefined) return fields
 
