@@ -1,3 +1,4 @@
+import DataPending from './DataFreeze';
 import Field from './Field';
 interface Fields<T> {
     [key: string]: T;
@@ -7,6 +8,7 @@ export default class DataBase<T, K> {
     helper_value?: K;
     validations: Partial<Record<keyof T, string>>;
     fields: Fields<Field<any>>;
+    freeze?: DataPending<T>;
     constructor(values: T, helper?: K);
     get(): T;
     /**
@@ -17,6 +19,9 @@ export default class DataBase<T, K> {
     valid<L extends keyof T>(field: L, message?: string): string | null;
     restartValidation(): void;
     hasChange<L extends keyof T>(fieldname?: L): boolean;
+    /**
+     * Reset data
+     */
     reset(): void;
 }
 export {};

@@ -24,6 +24,11 @@ export default class Result<T, K> {
      */
     all(): Array<T>;
     /**
+     *  Mapping all list of data. As the second parameter of the callback, it returns a help if it has been removed, updated, added or without any action
+     * @param callbackfn A function that accepts up to two arguments. Data, to.
+     */
+    mapping<L>(callbackfn: (data: T, to: 'deleted' | 'updated' | 'added' | 'nothing') => L): Array<L>;
+    /**
      * Check for updated data. Only system data appears
      */
     get hasToUpdate(): Boolean;

@@ -1,3 +1,4 @@
+import DataFreeze from '../data_types/DataFreeze'
 import LocalData from '../data_types/LocalData'
 import SystemData from '../data_types/SystemData'
 
@@ -15,7 +16,7 @@ export default class Result<T, K> {
   toDelete(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isDeleted()) {
+      if (data instanceof SystemData && data.isDeleted() && data.freeze === undefined) {
         dataList.push(data.get())
       }
     })
@@ -30,7 +31,7 @@ export default class Result<T, K> {
   toUpdate(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isUpdated()) {
+      if (data instanceof SystemData && data.isUpdated() && data.freeze === undefined) {
         dataList.push(data.get())
       }
     })
@@ -45,7 +46,7 @@ export default class Result<T, K> {
   toAdd(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof LocalData) {
+      if (data instanceof LocalData && data.freeze === undefined) {
         dataList.push(data.get())
       }
     })
@@ -60,7 +61,20 @@ export default class Result<T, K> {
   all(): Array<T> {
     const dataList: Array<T> = []
     this.dataMap.forEach((data) => {
-      dataList.push(data.get())
+      if (data.freeze !== undefined) {
+        switch (data.freeze.type) {
+          case 'added':
+            break
+          case 'deleted':
+            dataList.push(data.get())
+            break
+          case 'updated':
+            dataList.push(data.freeze.get())
+            break
+        }
+      } else {
+        dataList.push(data.get())
+      }
     })
 
     return dataList
@@ -75,7 +89,18 @@ export default class Result<T, K> {
   ): Array<L> {
     const dataList: Array<L> = []
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData) {
+      if (data.freeze instanceof DataFreeze) {
+        switch (data.freeze.type) {
+          case 'added':
+            break
+          case 'updated':
+            dataList.push(callbackfn(data.freeze.get(), data.freeze.type))
+            break
+          case 'deleted':
+            dataList.push(callbackfn(data.get(), data.freeze.type))
+            break
+        }
+      } else if (data instanceof SystemData) {
         if (data.isDeleted()) {
           dataList.push(callbackfn(data.get(), 'updated'))
         } else if (data.isUpdated()) {
@@ -96,7 +121,7 @@ export default class Result<T, K> {
   get hasToUpdate(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isUpdated()) {
+      if (data instanceof SystemData && data.isUpdated() && data.freeze === undefined) {
         has = true
       }
     })
@@ -109,7 +134,7 @@ export default class Result<T, K> {
   get hasToDelete(): Boolean {
     let has = false
     this.dataMap.forEach((data) => {
-      if (data instanceof SystemData && data.isDeleted()) {
+      if (data instanceof SystemData && data.isDeleted() && data.freeze === undefined) {
         has = true
       }
     })
@@ -122,7 +147,7 @@ export default class Result<T, K> {
   get hasToAdd(): boolean {
     let has = false
     this.dataMap.forEach((data) => {
-      if (data instanceof LocalData) {
+      if (data instanceof LocalData && data.freeze === undefined) {
         has = true
       }
     })

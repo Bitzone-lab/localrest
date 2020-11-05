@@ -6,7 +6,7 @@ export default class SystemData<T, K> extends DataBase<T, K> {
   private updated: boolean = false
 
   constructor(body: T, helper?: K) {
-    super(body, helper)
+    super({ ...body }, helper)
   }
 
   willBeDeleted() {
@@ -30,6 +30,15 @@ export default class SystemData<T, K> extends DataBase<T, K> {
     }
 
     this.updated = true
+  }
+
+  willBeNotUpdated() {
+    this.reset()
+    this.updated = false
+  }
+
+  willBeNotDeleted() {
+    this.deleted = false
   }
 
   isDeleted(): boolean {

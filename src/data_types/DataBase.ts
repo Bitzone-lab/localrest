@@ -1,3 +1,4 @@
+import DataPending from './DataFreeze'
 import Field from './Field'
 
 interface Fields<T> {
@@ -9,6 +10,7 @@ export default class DataBase<T, K> {
   helper_value?: K
   validations: Partial<Record<keyof T, string>> = {}
   fields: Fields<Field<any>> = {}
+  freeze?: DataPending<T>
 
   constructor(values: T, helper?: K) {
     this.value = values
@@ -66,9 +68,16 @@ export default class DataBase<T, K> {
     return changes
   }
 
+  /**
+   * Reset data
+   */
   reset() {
+    const data: Partial<any> = {}
     for (const key in this.fields) {
       this.fields[key].reset()
+      data[key] = this.fields[key].value
     }
+
+    this.value = { ...this.value, ...data }
   }
 }

@@ -18,8 +18,15 @@ describe('Reset', function () {
     })
 
     expect(localrest.hasChange(1, 'name')).toBeTruthy()
-
+    expect(localrest.get(1)).toMatchObject({
+      id: 1,
+      name: 'Giordano'
+    })
     expect(localrest.reset(1)).toBeTruthy()
+    expect(localrest.get(1)).toMatchObject({
+      id: 1,
+      name: 'Juan'
+    })
 
     expect(localrest.hasChange(1, 'name')).toBeFalsy()
   })

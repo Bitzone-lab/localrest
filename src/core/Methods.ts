@@ -1,3 +1,4 @@
+import DataFreeze from '../data_types/DataFreeze'
 import LocalData from '../data_types/LocalData'
 import SystemData from '../data_types/SystemData'
 import { generator } from '../utils'
@@ -41,13 +42,20 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Create a new data and generate an id
    * @param body new data body
+   * @param pedding Pending to accept or cancel the creation of this data
    * @returns Returns the data with its respective generated id
    */
-  add(body: T): T & { id: number } {
+  add(body: T, pedding: boolean = false): T & { id: number } {
     const id: number = this.generator.getID()
 
     const localData: LocalData<T, K> = new LocalData(body, this.defaultHelper)
+
+    if (pedding) {
+      localData.freeze = new DataFreeze(body, 'added')
+    }
+
     this.collections.set(id, localData)
+
     return {
       ...localData.get(),
       id
@@ -58,12 +66,16 @@ export default class Methods<T, K> extends Store<T, K> {
    * Update specific fields of a data by its id
    * @param id data id
    * @param body field for update
+   * @param pedding Pending to accept or cancel the update of this data
    */
-  update(id: number, body: Partial<Record<keyof T, any>>): boolean {
+  update(id: number, body: Partial<Record<keyof T, any>>, pedding: boolean = false): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
     if (data instanceof SystemData && !data.isDeleted()) {
+      if (pedding && data.freeze === undefined) {
+        data.freeze = new DataFreeze({ ...data.get() }, 'updated')
+      }
       data.willBeUpdated(body)
     } else if (data instanceof SystemData && data.isDeleted()) {
       return false
@@ -79,13 +91,17 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Delete a data from the list
    * @param id data id
+   * @param pedding Pending to accept or cancel the delete of this data
    * @returns If it does not find the data, it returns false
    */
-  delete(id: number): boolean {
+  delete(id: number, pedding: boolean = false): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
     if (data instanceof SystemData && !data.isDeleted()) {
+      if (pedding && data.freeze === undefined) {
+        data.freeze = new DataFreeze(data.get(), 'deleted')
+      }
       data.willBeDeleted()
     } else if (data instanceof SystemData && data.isDeleted()) {
       return false
@@ -146,5 +162,67 @@ export default class Methods<T, K> extends Store<T, K> {
     })
 
     return list
+  }
+
+  accept(id?: number): boolean {
+    let has = false
+    if (id !== undefined) {
+      const data = this.collections.get(id)
+      if (data && data.freeze instanceof DataFreeze) {
+        data.freeze = undefined
+        has = true
+      }
+      return has
+    }
+
+    this.collections.forEach(function (data) {
+      if (data.freeze instanceof DataFreeze) {
+        data.freeze = undefined
+        has = true
+      }
+    })
+    return has
+  }
+
+  cancel(id?: number) {
+    let has = false
+
+    const processData = (data: SystemData<T, K> | LocalData<T, K>, _id: number) => {
+      if (data.freeze instanceof DataFreeze) {
+        switch (data.freeze.type) {
+          case 'added':
+            this.collections.delete(_id)
+            has = true
+            break
+          case 'updated':
+            if (data instanceof SystemData) {
+              data.freeze = undefined
+              data.willBeNotUpdated()
+              has = true
+            }
+            break
+          case 'deleted':
+            if (data instanceof SystemData) {
+              data.freeze = undefined
+              data.willBeNotDeleted()
+              has = true
+            }
+            break
+        }
+      }
+    }
+
+    if (id !== undefined) {
+      const data = this.collections.get(id)
+      if (data !== undefined) {
+        processData(data, id)
+      }
+      return has
+    } else {
+      this.collections.forEach((data, id) => {
+        processData(data, id)
+      })
+      return has
+    }
   }
 }

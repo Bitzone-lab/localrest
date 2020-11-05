@@ -24,23 +24,26 @@ export default class Methods<T, K> extends Store<T, K> {
     /**
      * Create a new data and generate an id
      * @param body new data body
+     * @param pedding Pending to accept or cancel the creation of this data
      * @returns Returns the data with its respective generated id
      */
-    add(body: T): T & {
+    add(body: T, pedding?: boolean): T & {
         id: number;
     };
     /**
      * Update specific fields of a data by its id
      * @param id data id
      * @param body field for update
+     * @param pedding Pending to accept or cancel the update of this data
      */
-    update(id: number, body: Partial<Record<keyof T, any>>): boolean;
+    update(id: number, body: Partial<Record<keyof T, any>>, pedding?: boolean): boolean;
     /**
      * Delete a data from the list
      * @param id data id
+     * @param pedding Pending to accept or cancel the delete of this data
      * @returns If it does not find the data, it returns false
      */
-    delete(id: number): boolean;
+    delete(id: number, pedding?: boolean): boolean;
     /**
      * Returns the current data list with its respective id
      * @returns data list
@@ -64,4 +67,6 @@ export default class Methods<T, K> extends Store<T, K> {
     each<L>(callbackfn: (data: T & {
         id: number;
     }, validation: Partial<Record<keyof T, string>>, helper?: K) => L): Array<L>;
+    accept(id?: number): boolean;
+    cancel(id?: number): boolean;
 }
