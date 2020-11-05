@@ -67,6 +67,14 @@ export default class Methods<T, K> extends Store<T, K> {
     each<L>(callbackfn: (data: T & {
         id: number;
     }, validation: Partial<Record<keyof T, string>>, helper?: K) => L): Array<L>;
-    accept(id?: number): boolean;
+    /**
+     * Confirm pending data
+     * @param id You can confirm a specific data by its id
+     */
+    confirm(id?: number): boolean;
+    /**
+     * Cancel pending data
+     * @param id You can cancel a specific data by its id
+     */
     cancel(id?: number): boolean;
 }

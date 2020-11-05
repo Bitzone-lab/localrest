@@ -164,7 +164,11 @@ export default class Methods<T, K> extends Store<T, K> {
     return list
   }
 
-  accept(id?: number): boolean {
+  /**
+   * Confirm pending data
+   * @param id You can confirm a specific data by its id
+   */
+  confirm(id?: number): boolean {
     let has = false
     if (id !== undefined) {
       const data = this.collections.get(id)
@@ -184,6 +188,10 @@ export default class Methods<T, K> extends Store<T, K> {
     return has
   }
 
+  /**
+   * Cancel pending data
+   * @param id You can cancel a specific data by its id
+   */
   cancel(id?: number) {
     let has = false
 

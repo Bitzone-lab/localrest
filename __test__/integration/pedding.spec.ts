@@ -61,7 +61,7 @@ describe('Pendding', function () {
       },
       true
     )
-    expect(localrest.accept()).toBeTruthy()
+    expect(localrest.confirm()).toBeTruthy()
     const result = localrest.result()
     expect(result.hasToAdd).toBeTruthy()
     expect(result.toAdd().length).toBe(1)
@@ -73,7 +73,7 @@ describe('Pendding', function () {
         })
       ])
     )
-    expect(localrest.accept()).toBeFalsy()
+    expect(localrest.confirm()).toBeFalsy()
   })
 
   it('update data pendding accept', function () {
@@ -86,7 +86,7 @@ describe('Pendding', function () {
       },
       true
     )
-    expect(localrest.accept()).toBeTruthy()
+    expect(localrest.confirm()).toBeTruthy()
 
     const result = localrest.result()
     expect(result.hasToUpdate).toBeTruthy()
@@ -99,19 +99,19 @@ describe('Pendding', function () {
         })
       ])
     )
-    expect(localrest.accept()).toBeFalsy()
+    expect(localrest.confirm()).toBeFalsy()
   })
 
   it('delete data pendding accept', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.delete(1, true)
-    expect(localrest.accept()).toBeTruthy()
+    expect(localrest.confirm()).toBeTruthy()
 
     const result = localrest.result()
     expect(result.hasToDelete).toBeTruthy()
     expect(result.toDelete().length).toBe(1)
 
-    expect(localrest.accept()).toBeFalsy()
+    expect(localrest.confirm()).toBeFalsy()
   })
 
   it('mapping penddings accept', function () {
@@ -156,7 +156,7 @@ describe('Pendding', function () {
       ])
     )
 
-    expect(localrest.accept()).toBeTruthy()
+    expect(localrest.confirm()).toBeTruthy()
     const list_data_accepted = result1.mapping(function (data) {
       return data
     })
@@ -239,7 +239,7 @@ describe('Pendding', function () {
     expect(localrest.get(data_created1.id)).toBeNull()
     expect(localrest.get(data_created2.id)).toBeNull()
     expect(localrest.hasChange()).toBeFalsy()
-    expect(localrest.accept()).toBeFalsy()
+    expect(localrest.confirm()).toBeFalsy()
   })
 
   it('pendding accept and accept', function () {
@@ -251,7 +251,7 @@ describe('Pendding', function () {
       },
       true
     )
-    localrest.accept()
+    localrest.confirm()
     const result1 = localrest.result()
     expect(result1.hasToAdd).toBeTruthy()
     expect(result1.toAdd().length).toBe(1)
@@ -262,7 +262,7 @@ describe('Pendding', function () {
       },
       true
     )
-    localrest.accept()
+    localrest.confirm()
     const result2 = localrest.result()
     expect(result2.hasToAdd).toBeTruthy()
     expect(result2.toAdd().length).toBe(2)
@@ -273,8 +273,8 @@ describe('Pendding', function () {
     localrest.update(1, { name: 'Suarez', age: 4 }, true)
     localrest.update(2, { name: 'Jordi', age: 1 }, true)
 
-    expect(localrest.accept(1)).toBeTruthy()
-    expect(localrest.accept(1)).toBeFalsy()
+    expect(localrest.confirm(1)).toBeTruthy()
+    expect(localrest.confirm(1)).toBeFalsy()
     const result = localrest.result()
     expect(result.toUpdate().length).toBe(1)
 
@@ -287,7 +287,7 @@ describe('Pendding', function () {
   it('pending accept to cancel', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.update(1, { name: 'Sanchez', age: 99 }, true)
-    localrest.accept()
+    localrest.confirm()
     localrest.update(1, { name: 'Lin', age: 29 }, true)
     localrest.cancel()
     expect(localrest.get(1)).toMatchObject({
