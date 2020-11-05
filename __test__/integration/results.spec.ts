@@ -114,4 +114,38 @@ describe('Results', function () {
     const all = result.all()
     expect(all.length).toBe(4)
   })
+
+  it('mapping', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.add({
+      name: 'Antonio',
+      age: 87
+    })
+    localrest.add({
+      name: 'Marcos',
+      age: 55
+    })
+    localrest.update(7, {
+      name: 'Miguel'
+    })
+    localrest.delete(1)
+    const result = localrest.result()
+    let added = 0
+    let updated = 0
+    let deleted = 0
+    let nothing = 0
+    const mapping = result.mapping(function (data, to) {
+      if (to === 'added') added++
+      if (to === 'updated') updated++
+      if (to === 'deleted') deleted++
+      if (to === 'nothing') nothing++
+      return data
+    })
+
+    expect(mapping.length).toBe(5)
+    expect(added).toBe(2)
+    expect(updated).toBe(1)
+    expect(deleted).toBe(1)
+    expect(nothing).toBe(1)
+  })
 })

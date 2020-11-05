@@ -67,6 +67,30 @@ export default class Result<T, K> {
   }
 
   /**
+   *  Mapping all list of data. As the second parameter of the callback, it returns a help if it has been removed, updated, added or without any action
+   * @param callbackfn A function that accepts up to two arguments. Data, to.
+   */
+  mapping<L>(
+    callbackfn: (data: T, to: 'deleted' | 'updated' | 'added' | 'nothing') => L
+  ): Array<L> {
+    const dataList: Array<L> = []
+    this.dataMap.forEach((data) => {
+      if (data instanceof SystemData) {
+        if (data.isDeleted()) {
+          dataList.push(callbackfn(data.get(), 'updated'))
+        } else if (data.isUpdated()) {
+          dataList.push(callbackfn(data.get(), 'deleted'))
+        } else {
+          dataList.push(callbackfn(data.get(), 'nothing'))
+        }
+      } else {
+        dataList.push(callbackfn(data.get(), 'added'))
+      }
+    })
+    return dataList
+  }
+
+  /**
    * Check for updated data. Only system data appears
    */
   get hasToUpdate(): Boolean {
