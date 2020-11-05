@@ -11,7 +11,7 @@ const list = [
   { id: 2, name: 'Mario', age: 18 }
 ]
 
-describe('Pedding', function () {
+describe('Pendding', function () {
   it('added data pendding', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.add(
@@ -136,7 +136,7 @@ describe('Pedding', function () {
     const result1 = localrest.result()
     expect(result1.all().length).toBe(2)
 
-    const list_data_not_accepted = result1.mapping(function (data, to) {
+    const list_data_not_accepted = result1.mapping(function (data) {
       return data
     })
 
@@ -157,7 +157,7 @@ describe('Pedding', function () {
     )
 
     expect(localrest.accept()).toBeTruthy()
-    const list_data_accepted = result1.mapping(function (data, to) {
+    const list_data_accepted = result1.mapping(function (data) {
       return data
     })
     expect(list_data_accepted.length).toBe(3)
@@ -181,7 +181,7 @@ describe('Pedding', function () {
     )
   })
 
-  it('pedding cancel', function () {
+  it('pendding cancel', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.delete(1, true)
     localrest.update(
@@ -242,7 +242,7 @@ describe('Pedding', function () {
     expect(localrest.accept()).toBeFalsy()
   })
 
-  it('pedding accept and accept', function () {
+  it('pendding accept and accept', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.add(
       {
@@ -268,7 +268,7 @@ describe('Pedding', function () {
     expect(result2.toAdd().length).toBe(2)
   })
 
-  it('pedding accept and cancel by id', function () {
+  it('pendding accept and cancel by id', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.update(1, { name: 'Suarez', age: 4 }, true)
     localrest.update(2, { name: 'Jordi', age: 1 }, true)
@@ -282,5 +282,17 @@ describe('Pedding', function () {
     expect(localrest.cancel(2)).toBeFalsy()
     expect(localrest.get(2)).toMatchObject({ id: 2, name: 'Mario', age: 18 })
     expect(localrest.hasChange()).toBeTruthy()
+  })
+
+  it('pending accept to cancel', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.update(1, { name: 'Sanchez', age: 99 }, true)
+    localrest.accept()
+    localrest.update(1, { name: 'Lin', age: 29 }, true)
+    localrest.cancel()
+    expect(localrest.get(1)).toMatchObject({
+      name: 'Sanchez',
+      age: 99
+    })
   })
 })

@@ -32,9 +32,14 @@ export default class SystemData<T, K> extends DataBase<T, K> {
     this.updated = true
   }
 
-  willBeNotUpdated() {
-    this.reset()
-    this.updated = false
+  willBeNotUpdated(data: T, changeUpdated: boolean) {
+    this.value = data
+    for (const key in data) {
+      if (this.fields[key]) {
+        this.fields[key].update(data[key])
+      }
+    }
+    this.updated = changeUpdated
   }
 
   willBeNotDeleted() {

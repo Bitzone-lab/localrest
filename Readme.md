@@ -202,6 +202,7 @@ result.toAdd()
 | **toUpdate()** | `Array<T>` | Return list data for update. (It's only for system data). |
 | **toAdd()** | `Array<T>` | Return list data for add. |
 | **all()** | `Array<T>` | Return all list. |
+| **mapping(callbackfn(T, to))** | `Array<L>` | A mapping of all the result data. The second (to) parameter of the callback will return the type of data state |
 
 
 #### Props
@@ -367,6 +368,44 @@ localrest.reset(id)
 // { id: 1, name: 'Juan', age: 4 }
 ```
 
+## Pedding Data
+
+It is data created, updated or deleted that awaits a confirmation if it will be accepted or canceled. In case of being canceled it will return to the state before the given action.
+
+```js
+const pendding = true
+localRest.add(data, pendding)
+localRest.update(1, data, pedding)
+localRest.delete(2, pedding)
+
+localRest.confirm()
+```
+
+If you want to cancel
+
+```js
+localRest.cancel()
+```
+
+It is also possible to confirm or cancel by your id
+
+```js
+localRest.confirm(id)
+localRest.cancel(id)
+```
+
+As a result, it will not take into account the pending data unless it has been confirmed.
+
+```js
+localRest.add(data, true)
+const result = localRest.result()
+result.hasToAdd // false
+
+localRest.confirm()
+const result2 = localRest.result()
+result.hasToAdd // true
+```
+
 ## Use JSDoc
 
 ```js
@@ -397,6 +436,6 @@ const localRest = new LocalRest()
 localRest.init(list, MyMode.MODE1)
 ```
 
-The helper its optional
+The helper is optional
 
 Read more about JSDoc [here](https://jsdoc.app/about-getting-started.html)
