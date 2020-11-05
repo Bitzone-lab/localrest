@@ -2,6 +2,7 @@ import DataBase from './DataBase'
 import Field from './Field'
 
 export default class LocalData<T, K> extends DataBase<T, K> {
+  initialized = false
   constructor(body: T, helper?: K) {
     super(body, helper)
   }

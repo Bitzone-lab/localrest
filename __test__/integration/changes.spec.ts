@@ -58,6 +58,19 @@ describe('Changes', function () {
     expect(result3).toBeTruthy()
   })
 
+  it('has change all for add', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    expect(localrest.hasChange()).toBeFalsy()
+    const data = localrest.add({
+      name: 'Tiana',
+      age: 4
+    })
+    expect(localrest.hasChange()).toBeTruthy()
+
+    localrest.delete(data.id)
+    expect(localrest.hasChange()).toBeFalsy()
+  })
+
   it('clear has change', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.update(1, { name: 'Luis' })

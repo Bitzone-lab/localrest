@@ -43,6 +43,7 @@ export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> 
         this.collections.set(data.id, systemData)
       } else {
         const localData: LocalData<T, K> = new LocalData(data, this.defaultHelper)
+        localData.initialized = true
         this.collections.set(this.generator.getID(), localData)
       }
     })
@@ -171,7 +172,11 @@ export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> 
     } else {
       this.collections.forEach(function (data) {
         if (!changes) {
-          changes = data.hasChange()
+          if (data instanceof LocalData && !data.initialized) {
+            changes = true
+          } else {
+            changes = data.hasChange()
+          }
         }
       })
     }
