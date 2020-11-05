@@ -112,7 +112,7 @@ export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> 
 
     if (data === undefined) return null
 
-    if (message) {
+    if (message !== undefined) {
       return data.valid(fieldname, message)
     } else {
       return data.valid(fieldname)

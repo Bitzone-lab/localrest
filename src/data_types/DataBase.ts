@@ -36,11 +36,13 @@ export default class DataBase<T, K> {
   }
 
   valid<L extends keyof T>(field: L, message?: string): string | null {
-    if (message) {
+    if (message !== undefined) {
       this.validations[field] = message
       return message
     } else {
-      return (this.validations[field] as string) || null
+      return typeof this.validations[field] === 'string'
+        ? (this.validations[field] as string)
+        : null
     }
   }
 

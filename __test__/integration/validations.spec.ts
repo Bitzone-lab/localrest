@@ -96,6 +96,38 @@ describe('Validations', function () {
     expect(validation).not.toHaveProperty('age')
   })
 
+  it('clear valid by id', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.validation(1, {
+      name: 'required name',
+      age: 'its not number'
+    })
+
+    expect(localrest.valid(1, 'name', '')).toBe('')
+    expect(localrest.valid(1, 'age', '')).toBe('')
+  })
+
+  it('clear validation by id', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.validation(1, {
+      name: 'required name',
+      age: 'its not number'
+    })
+
+    const validation = localrest.validation(1, {
+      name: '',
+      age: ''
+    })
+
+    expect(validation).toMatchObject({
+      name: '',
+      age: ''
+    })
+
+    expect(localrest.valid(1, 'name')).toBe('')
+    expect(localrest.valid(1, 'age')).toBe('')
+  })
+
   it('clear validations', function () {
     const localrest: LocalRest<Data> = new LocalRest(list)
     localrest.validation(1, {
