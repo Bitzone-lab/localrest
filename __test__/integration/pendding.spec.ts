@@ -345,4 +345,18 @@ describe('Pendding', function () {
     expect(localrest.confirm(data1.id)).toBeTruthy()
     expect(localrest.get(data1.id)).toMatchObject({ id: data1.id, name: 'Giordano', age: 21 })
   })
+
+  it('pendding for data created to confirm and cancel', function () {
+    const localrest: LocalRest<Data> = new LocalRest()
+    const data = localrest.add({ name: 'Fredy', age: 4 })
+    localrest.update(data.id, { name: 'Fatima', age: 22 }, true)
+    localrest.confirm(data.id)
+    localrest.update(data.id, { name: 'Luis', age: 11 }, true)
+    localrest.cancel(data.id)
+    expect(localrest.get(data.id)).toMatchObject({
+      id: data.id,
+      name: 'Fatima',
+      age: 22
+    })
+  })
 })
