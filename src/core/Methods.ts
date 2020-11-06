@@ -82,6 +82,9 @@ export default class Methods<T, K> extends Store<T, K> {
     }
 
     if (data instanceof LocalData) {
+      if (pedding && data.freeze === undefined) {
+        data.freeze = new DataFreeze({ ...data.get() }, 'updated', data.hasChange())
+      }
       data.update(body)
     }
 
@@ -205,9 +208,11 @@ export default class Methods<T, K> extends Store<T, K> {
           case 'updated':
             if (data instanceof SystemData) {
               data.willBeNotUpdated(data.freeze.get(), data.freeze.hadChangeBefore())
-              data.freeze = undefined
-              has = true
+            } else {
+              data.update(data.freeze.get())
             }
+            data.freeze = undefined
+            has = true
             break
           case 'deleted':
             if (data instanceof SystemData) {

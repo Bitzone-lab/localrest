@@ -295,4 +295,54 @@ describe('Pendding', function () {
       age: 99
     })
   })
+
+  it('pendding for data created to cancel update', function () {
+    const localrest: LocalRest<Data> = new LocalRest()
+    const data = localrest.add({ name: 'Fredy', age: 4 })
+    expect(localrest.hasChange(data.id)).toBeFalsy()
+    localrest.update(data.id, { name: 'Fatima' }, true)
+    expect(localrest.get(data.id)).toMatchObject({
+      id: data.id,
+      name: 'Fatima',
+      age: 4
+    })
+    localrest.update(data.id, { age: 9 }, true)
+    expect(localrest.get(data.id)).toMatchObject({
+      id: data.id,
+      name: 'Fatima',
+      age: 9
+    })
+    expect(localrest.hasChange(data.id)).toBeTruthy()
+    expect(localrest.cancel(data.id)).toBeTruthy()
+    expect(localrest.get(data.id)).toMatchObject({
+      id: data.id,
+      name: 'Fredy',
+      age: 4
+    })
+    expect(localrest.hasChange(data.id)).toBeFalsy()
+    const result = localrest.result()
+    expect(result.hasToAdd).toBeTruthy()
+    expect(result.hasToUpdate).toBeFalsy()
+  })
+
+  it('pendding for multidata to cancel update', function () {
+    const localrest: LocalRest<Data> = new LocalRest()
+    const data1 = localrest.add({ name: 'Fredy', age: 4 })
+    const data2 = localrest.add({ name: 'Fatima', age: 14 })
+    localrest.update(data1.id, { name: 'Luis' }, true)
+    localrest.update(data2.id, { name: 'Katherin' }, true)
+    expect(localrest.get(data1.id)).toMatchObject({ id: data1.id, name: 'Luis', age: 4 })
+    expect(localrest.get(data2.id)).toMatchObject({ id: data2.id, name: 'Katherin', age: 14 })
+    expect(localrest.cancel(data1.id)).toBeTruthy()
+    expect(localrest.confirm(data2.id)).toBeTruthy()
+    expect(localrest.hasChange(data1.id)).toBeFalsy()
+    expect(localrest.hasChange(data2.id)).toBeTruthy()
+    expect(localrest.get(data1.id)).toMatchObject({ id: data1.id, name: 'Fredy', age: 4 })
+    expect(localrest.get(data2.id)).toMatchObject({ id: data2.id, name: 'Katherin', age: 14 })
+    localrest.update(data1.id, { name: 'Giordano', age: 21 }, true)
+    expect(localrest.hasChange(data1.id)).toBeTruthy()
+    expect(localrest.get(data1.id)).toMatchObject({ id: data1.id, name: 'Giordano', age: 21 })
+    expect(localrest.confirm(data1.id)).toBeTruthy()
+    expect(localrest.get(data1.id)).toMatchObject({ id: data1.id, name: 'Giordano', age: 21 })
+  })
 })
