@@ -359,4 +359,15 @@ describe('Pendding', function () {
       age: 22
     })
   })
+
+  it('get data frozen of pendding data', function () {
+    const localrest: LocalRest<Data> = new LocalRest()
+    const data = localrest.add({ name: 'Fredy', age: 4 })
+    localrest.update(data.id, { name: 'Fatima', age: 22 }, true)
+    expect(localrest.frozen(data.id)).toMatchObject({ id: data.id, name: 'Fredy', age: 4 })
+    expect(localrest.frozen(data.id, 'name')).toBe('Fredy')
+    expect(localrest.frozen(data.id, 'age')).toBe(4)
+    localrest.confirm(data.id)
+    expect(localrest.frozen(data.id)).toBeUndefined()
+  })
 })

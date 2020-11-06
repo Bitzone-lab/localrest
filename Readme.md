@@ -403,7 +403,23 @@ result.hasToAdd // false
 
 localRest.confirm()
 const result2 = localRest.result()
-result.hasToAdd // true
+result2.hasToAdd // true
+```
+
+You can get the previous data of a pending update.
+
+```js
+const data = localReset.add({ name: 'manuel' })
+localRest.update(data.id, { name: 'Juan' })
+localRest.frozen(data.id) // { name: 'manuel' }
+localRest.confirm(data.id)
+localRest.frozen(data.id) // undefinded
+```
+
+You can specify the name of the field you want to receive.
+
+```js
+localRest.frozen(data.id, 'name') // manuel
 ```
 
 ## Use JSDoc

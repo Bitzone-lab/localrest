@@ -170,6 +170,7 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Confirm pending data
    * @param id You can confirm a specific data by its id
+   * @returns It will return a false if the data has already been confirmed or canceled
    */
   confirm(id?: number): boolean {
     let has = false
@@ -194,6 +195,7 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Cancel pending data
    * @param id You can cancel a specific data by its id
+   * @returns It will return a false if the data has already been confirmed or canceled
    */
   cancel(id?: number) {
     let has = false
@@ -237,5 +239,21 @@ export default class Methods<T, K> extends Store<T, K> {
       })
       return has
     }
+  }
+
+  /**
+   * They are frozen data of pending data in confirmation. Returns its value before the given action.
+   * @param id data id
+   * @param fieldname field name
+   * @returns It will return undefined if there is no pending data or the name of the field does not exist
+   */
+  frozen<L extends keyof T>(id: number, fieldname?: L): (T & { id: number }) | T[L] | undefined {
+    const data = this.collections.get(id)
+    if (data && data.freeze !== undefined && fieldname !== undefined) {
+      return data.freeze.get()[fieldname]
+    } else if (data && data.freeze !== undefined) {
+      return { ...data.freeze.get(), id }
+    }
+    return undefined
   }
 }
