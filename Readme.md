@@ -406,11 +406,11 @@ const result2 = localRest.result()
 result2.hasToAdd // true
 ```
 
-You can get the previous data of a pending update.
+You can get the previous data of a pending update. In the case of a data that is not pending, it will only return its current value.
 
 ```js
-const data = localReset.add({ name: 'manuel' })
-localRest.update(data.id, { name: 'Juan' })
+const data = localReset.add({ name: 'Manuel' })
+localRest.update(data.id, { name: 'Juan' }, true)
 localRest.frozen(data.id) // { name: 'manuel' }
 localRest.confirm(data.id)
 localRest.frozen(data.id) // undefinded
@@ -421,6 +421,20 @@ You can specify the name of the field you want to receive.
 ```js
 localRest.frozen(data.id, 'name') // manuel
 ```
+
+If there is a pending for confirmation but a non-pending update is carried out later, it will cancel that pending data and only take into account the current update.
+
+```js
+const data = localReset.add({ name: 'Manuel', age: 55 })
+localRest.update(data.id, { name: 'Juan' }, true)
+localRest.update(data.id, { age: 12 })
+```
+
+> **Result:**
+> ```js
+> { name: 'Manuel', age: 12 }
+> ```
+
 
 ## Use JSDoc
 

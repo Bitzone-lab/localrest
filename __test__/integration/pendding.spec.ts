@@ -368,6 +368,32 @@ describe('Pendding', function () {
     expect(localrest.frozen(data.id, 'name')).toBe('Fredy')
     expect(localrest.frozen(data.id, 'age')).toBe(4)
     localrest.confirm(data.id)
-    expect(localrest.frozen(data.id)).toBeUndefined()
+    expect(localrest.frozen(data.id)).toMatchObject({ id: data.id, name: 'Fatima', age: 22 })
+  })
+
+  it('cancel data pendding for update', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.update(1, { name: 'Fatima' }, true)
+    localrest.update(1, { age: 55 })
+    expect(localrest.get(1)).toMatchObject({ id: 1, name: 'Juan', age: 55 })
+  })
+
+  it('mapping result of pendding data', function () {
+    const localrest: LocalRest<Data> = new LocalRest()
+    localrest.add({ name: 'Fredy', age: 4 }, true)
+    localrest.add({ name: 'Fatima', age: 14 }, true)
+    const result = localrest.result()
+    const list_not_confirm = result.mapping(function (data, to) {
+      if (to === 'added') return data
+      return
+    })
+    expect(list_not_confirm.length).toBe(0)
+    expect(result.toAdd().length).toBe(0)
+    localrest.confirm()
+    const list_confirm = localrest.result().mapping(function (data, to) {
+      if (to === 'added') return data
+      return
+    })
+    expect(list_confirm.length).toBe(2)
   })
 })

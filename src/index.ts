@@ -164,7 +164,7 @@ export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> 
     if (id) {
       const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
 
-      if (data instanceof SystemData && data.isDeleted()) return false
+      if (data instanceof SystemData && data.isDeleted()) return true
 
       if (data !== undefined) {
         changes = data.hasChange(fieldname)
@@ -172,11 +172,9 @@ export default class LocalRest<T = Object, K = undefined> extends Methods<T, K> 
     } else {
       this.collections.forEach(function (data) {
         if (!changes) {
-          if (data instanceof LocalData && !data.initialized) {
-            changes = true
-          } else {
-            changes = data.hasChange()
-          }
+          if (data instanceof LocalData && !data.initialized) changes = true
+          else if (data instanceof SystemData && data.isDeleted()) changes = true
+          else changes = data.hasChange()
         }
       })
     }

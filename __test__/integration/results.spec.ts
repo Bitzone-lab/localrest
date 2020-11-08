@@ -148,4 +148,22 @@ describe('Results', function () {
     expect(deleted).toBe(1)
     expect(nothing).toBe(1)
   })
+
+  it('filter with mapping', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    localrest.delete(1)
+    const result = localrest.result()
+    const data_filtered = result.mapping(function (data, to) {
+      if (to === 'deleted') return
+      return data
+    })
+
+    expect(data_filtered.length).toBe(2)
+    expect(data_filtered).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 7, name: 'Mario', age: 18 }),
+        expect.objectContaining({ id: 17, name: 'Luisa', age: 44 })
+      ])
+    )
+  })
 })

@@ -82,34 +82,44 @@ export default class Result<T, K> {
 
   /**
    *  Mapping all list of data. As the second parameter of the callback, it returns a help if it has been removed, updated, added or without any action
-   * @param callbackfn A function that accepts up to two arguments. Data, to.
+   * @param callbackfn A function that accepts up to two arguments. Data, to. The callback also works as a filter, if you don't return anything it will filter this data.
+   * @example
+   * const list = localRest.result().mapping(function(data, to){
+   *  if(to === 'deleted') return
+   *  return data
+   * })
    */
   mapping<L>(
-    callbackfn: (data: T, to: 'deleted' | 'updated' | 'added' | 'nothing') => L
+    callbackfn: (data: T, to: 'deleted' | 'updated' | 'added' | 'nothing') => L | void
   ): Array<L> {
     const dataList: Array<L> = []
     this.dataMap.forEach((data) => {
+      let result = undefined
       if (data.freeze instanceof DataFreeze) {
         switch (data.freeze.type) {
           case 'added':
             break
           case 'updated':
-            dataList.push(callbackfn(data.freeze.get(), data.freeze.type))
+            result = callbackfn(data.freeze.get(), data.freeze.type)
             break
           case 'deleted':
-            dataList.push(callbackfn(data.get(), data.freeze.type))
+            result = callbackfn(data.get(), data.freeze.type)
             break
         }
       } else if (data instanceof SystemData) {
         if (data.isDeleted()) {
-          dataList.push(callbackfn(data.get(), 'updated'))
+          result = callbackfn(data.get(), 'deleted')
         } else if (data.isUpdated()) {
-          dataList.push(callbackfn(data.get(), 'deleted'))
+          result = callbackfn(data.get(), 'updated')
         } else {
-          dataList.push(callbackfn(data.get(), 'nothing'))
+          result = callbackfn(data.get(), 'nothing')
         }
       } else {
-        dataList.push(callbackfn(data.get(), 'added'))
+        result = callbackfn(data.get(), 'added')
+      }
+
+      if (result !== undefined) {
+        dataList.push(result)
       }
     })
     return dataList

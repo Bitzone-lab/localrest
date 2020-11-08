@@ -24,26 +24,26 @@ export default class Methods<T, K> extends Store<T, K> {
     /**
      * Create a new data and generate an id
      * @param body new data body
-     * @param pedding Pending to accept or cancel the creation of this data
+     * @param pendding Pending to accept or cancel the creation of this data
      * @returns Returns the data with its respective generated id
      */
-    add(body: T, pedding?: boolean): T & {
+    add(body: T, pendding?: boolean): T & {
         id: number;
     };
     /**
      * Update specific fields of a data by its id
      * @param id data id
      * @param body field for update
-     * @param pedding Pending to accept or cancel the update of this data
+     * @param pendding Pending to accept or cancel the update of this data
      */
-    update(id: number, body: Partial<Record<keyof T, any>>, pedding?: boolean): boolean;
+    update(id: number, body: Partial<Record<keyof T, any>>, pendding?: boolean): boolean;
     /**
      * Delete a data from the list
      * @param id data id
-     * @param pedding Pending to accept or cancel the delete of this data
+     * @param pendding Pending to accept or cancel the delete of this data
      * @returns If it does not find the data, it returns false
      */
-    delete(id: number, pedding?: boolean): boolean;
+    delete(id: number, pendding?: boolean): boolean;
     /**
      * Returns the current data list with its respective id
      * @returns data list
@@ -80,12 +80,12 @@ export default class Methods<T, K> extends Store<T, K> {
      */
     cancel(id?: number): boolean;
     /**
-     * They are frozen data of pending data in confirmation. Returns its value before the given action.
+     * Retorna el valor actual del dato pero si es un dato pendiente solo te retornará su valor antes de la actualización hasta que se haya dado por confirmado.
      * @param id data id
      * @param fieldname field name
-     * @returns It will return undefined if there is no pending data or the name of the field does not exist
+     * @returns It will return undefined if there the name of the field does not exist
      */
-    frozen<L extends keyof T>(id: number, fieldname?: L): (T & {
+    frozen<L extends keyof T>(id: number, fieldname?: L): T[L] | (T & {
         id: number;
-    }) | T[L] | undefined;
+    }) | undefined;
 }

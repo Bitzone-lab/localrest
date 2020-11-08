@@ -91,4 +91,19 @@ describe('Changes', function () {
       name: 'Luis'
     })
   })
+
+  it('changes for delete', function () {
+    const localrest: LocalRest<Data> = new LocalRest(list)
+    expect(localrest.hasChange(1)).toBeFalsy()
+    localrest.delete(1)
+    expect(localrest.hasChange(1)).toBeTruthy()
+    expect(localrest.hasChange()).toBeTruthy()
+  })
+
+  xit('has change for local data initialized and deleted', function () {
+    const localrest: LocalRest<Data> = new LocalRest([{ name: 'Juan', age: 15 }])
+    expect(localrest.hasChange()).toBeFalsy()
+    localrest.delete(localrest.list()[0].id)
+    expect(localrest.hasChange()).toBeTruthy()
+  })
 })

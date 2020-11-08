@@ -42,15 +42,15 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Create a new data and generate an id
    * @param body new data body
-   * @param pedding Pending to accept or cancel the creation of this data
+   * @param pendding Pending to accept or cancel the creation of this data
    * @returns Returns the data with its respective generated id
    */
-  add(body: T, pedding: boolean = false): T & { id: number } {
+  add(body: T, pendding: boolean = false): T & { id: number } {
     const id: number = this.generator.getID()
 
     const localData: LocalData<T, K> = new LocalData(body, this.defaultHelper)
 
-    if (pedding) {
+    if (pendding) {
       localData.freeze = new DataFreeze(body, 'added')
     }
 
@@ -66,15 +66,17 @@ export default class Methods<T, K> extends Store<T, K> {
    * Update specific fields of a data by its id
    * @param id data id
    * @param body field for update
-   * @param pedding Pending to accept or cancel the update of this data
+   * @param pendding Pending to accept or cancel the update of this data
    */
-  update(id: number, body: Partial<Record<keyof T, any>>, pedding: boolean = false): boolean {
+  update(id: number, body: Partial<Record<keyof T, any>>, pendding: boolean = false): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
     if (data instanceof SystemData && !data.isDeleted()) {
-      if (pedding && data.freeze === undefined) {
+      if (pendding && data.freeze === undefined) {
         data.freeze = new DataFreeze({ ...data.get() }, 'updated', data.hasChange())
+      } else if (!pendding && data.freeze instanceof DataFreeze) {
+        this.cancel(id)
       }
       data.willBeUpdated(body)
     } else if (data instanceof SystemData && data.isDeleted()) {
@@ -82,8 +84,10 @@ export default class Methods<T, K> extends Store<T, K> {
     }
 
     if (data instanceof LocalData) {
-      if (pedding && data.freeze === undefined) {
+      if (pendding && data.freeze === undefined) {
         data.freeze = new DataFreeze({ ...data.get() }, 'updated', data.hasChange())
+      } else if (!pendding && data.freeze instanceof DataFreeze) {
+        this.cancel(id)
       }
       data.update(body)
     }
@@ -94,15 +98,15 @@ export default class Methods<T, K> extends Store<T, K> {
   /**
    * Delete a data from the list
    * @param id data id
-   * @param pedding Pending to accept or cancel the delete of this data
+   * @param pendding Pending to accept or cancel the delete of this data
    * @returns If it does not find the data, it returns false
    */
-  delete(id: number, pedding: boolean = false): boolean {
+  delete(id: number, pendding: boolean = false): boolean {
     const data: SystemData<T, K> | LocalData<T, K> | undefined = this.collections.get(id)
     if (data === undefined) return false
 
     if (data instanceof SystemData && !data.isDeleted()) {
-      if (pedding && data.freeze === undefined) {
+      if (pendding && data.freeze === undefined) {
         data.freeze = new DataFreeze(data.get(), 'deleted')
       }
       data.willBeDeleted()
@@ -242,18 +246,26 @@ export default class Methods<T, K> extends Store<T, K> {
   }
 
   /**
-   * They are frozen data of pending data in confirmation. Returns its value before the given action.
+   * Retorna el valor actual del dato pero si es un dato pendiente solo te retornará su valor antes de la actualización hasta que se haya dado por confirmado.
    * @param id data id
    * @param fieldname field name
-   * @returns It will return undefined if there is no pending data or the name of the field does not exist
+   * @returns It will return undefined if there the name of the field does not exist
    */
-  frozen<L extends keyof T>(id: number, fieldname?: L): (T & { id: number }) | T[L] | undefined {
+  frozen<L extends keyof T>(id: number, fieldname?: L): T[L] | (T & { id: number }) | undefined {
     const data = this.collections.get(id)
-    if (data && data.freeze !== undefined && fieldname !== undefined) {
-      return data.freeze.get()[fieldname]
-    } else if (data && data.freeze !== undefined) {
+    if (data === undefined) return undefined
+    if (data.freeze === undefined) {
+      if (fieldname === undefined) {
+        return { ...data.get(), id }
+      } else {
+        return data.get()[fieldname]
+      }
+    }
+
+    if (fieldname === undefined) {
       return { ...data.freeze.get(), id }
     }
-    return undefined
+
+    return data.freeze.get()[fieldname]
   }
 }
